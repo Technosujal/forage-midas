@@ -1,5 +1,6 @@
 package com.jpmc.midascore;
 
+import com.jpmc.midascore.component.DatabaseConduit;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,9 @@ public class TaskFourTests {
     @Autowired
     private FileLoader fileLoader;
 
+    @Autowired
+    private DatabaseConduit databaseConduit;
+
     @Test
     void task_four_verifier() throws InterruptedException {
         userPopulator.populate();
@@ -30,8 +34,14 @@ public class TaskFourTests {
         for (String transactionLine : transactionLines) {
             kafkaProducer.send(transactionLine);
         }
-        Thread.sleep(2000);
+        Thread.sleep(10000);
 
+        for (long i = 1; i <= 11; i++) {
+            var user = databaseConduit.findUserById(i);
+            if (user != null) {
+                logger.info("User {}: {} balance: {}", i, user.getName(), user.getBalance());
+            }
+        }
 
         logger.info("----------------------------------------------------------");
         logger.info("----------------------------------------------------------");
